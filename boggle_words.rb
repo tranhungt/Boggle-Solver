@@ -6,7 +6,9 @@ class Boggle
   end
 
   def play
+    start_time = Time.now
     dict = import_dict
+    dictionary_time = Time.now
     board = generate_board
     @index_hash = generate_index_hash(board)
     @letters_hash = generate_letters_hash(board)
@@ -26,7 +28,12 @@ class Boggle
       end
     end
     puts ''
+    finished_time = Time.now
     p words_found.select{|word| word.length > 1}.uniq
+    puts ''
+    puts "Time to import dictionary: #{dictionary_time - start_time}"
+    puts "Time to finish algorithm: #{finished_time - start_time}"
+    puts "Total time: #{finished_time - start_time}"
   end
 
   def get_word_chain(word, index, used_coords, at_coord)
