@@ -133,10 +133,11 @@ class Boggle
   end
 
   def import_dict
+    min_word_length = 3
     dict = Hash.new{|hash, key| hash[key] = []}
     File.open('word_list.txt').each do |line|
       word = line.strip.downcase
-      if word.length > 3
+      if word.length >= min_word_length
         first_letter = word[0]
         if word[0,2] == 'qu'
           dict['qu'] << word
