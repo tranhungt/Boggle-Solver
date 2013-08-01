@@ -27,14 +27,27 @@ class Boggle
         end
       end
     end
-    puts ''
+    p dict.values.flatten.length
     finished_time = Time.now
-    p words_found.select{|word| word.length > 1}.uniq
-    puts ''
-    puts "Time to import dictionary: #{dictionary_time - start_time}"
-    puts "Time to finish algorithm: #{finished_time - start_time}"
-    puts "Total time: #{finished_time - start_time}"
+    print_stats({:start_time => start_time, :finished_time => finished_time, :dictionary_time => dictionary_time, :words_found => words_found})
   end
+
+  #Print functions
+  def print_stats(stats = {})
+    puts stats[:words_found].select{|word| word.length > 1}.uniq.join(', ')
+    puts ''
+    puts "Time to import dictionary: #{stats[:dictionary_time] - stats[:start_time]}"
+    puts "Time to finish algorithm: #{stats[:finished_time] - stats[:start_time]}"
+    puts "Total time: #{stats[:finished_time] - stats[:start_time]}"
+  end
+
+  def print_board(board)
+    board.each do |row|
+      p row.map{|letter| letter.capitalize}
+    end
+  end
+
+  #Word Search Alg.
 
   def get_word_chain(word, index, used_coords, at_coord)
     return true if index == word.length()
@@ -73,7 +86,6 @@ class Boggle
     neighbors = get_neighbors(at_coord)
     containing_neighbors = []
     neighbors.each do |coord|
-
       if !used_coords.include?(coord) && @index_hash[coord] == letter
         containing_neighbors << coord
       end
@@ -90,17 +102,11 @@ class Boggle
     return y >= 0 && y <= @board_size && x <= @board_size && x >= 0
   end
 
-  def print_board(board)
-    board.each do |row|
-      p row.map{|letter| letter.capitalize}
-    end
-  end
 
   #Generating data structures / Initial values
 
   def generate_index_hash(board)
-    index_hash = {}
-    index_hash.default = []
+    index_hash = Hash.new
     board.each_with_index do |row, y|
       row.each_with_index do |letter, x|
         index_hash[[y,x]] = letter
@@ -110,15 +116,10 @@ class Boggle
   end
 
   def generate_letters_hash(board)
-    letters_hash = {}
-    letters_hash.default = []
+    letters_hash = Hash.new{|hash, key| hash[key] = []}
     board.each_with_index do |row, y|
       row.each_with_index do |letter, x|
-        if letters_hash[letter].empty?
-          letters_hash[letter] = [[y,x]]
-        else
-          letters_hash[letter] << [y,x]
-        end
+        letters_hash[letter] << [y,x]
       end
     end
     letters_hash
@@ -132,21 +133,16 @@ class Boggle
   end
 
   def import_dict
-    dict = {}
-    dict.default = []
+    dict = Hash.new{|hash, key| hash[key] = []}
     File.open('word_list.txt').each do |line|
       word = line.strip.downcase
-      first_letter = word[0]
-      if word[0,2] == 'qu'
-        if dict['qu'].empty?
-          dict['qu'] = [word]
-        else
+      if word.length > 3
+        first_letter = word[0]
+        if word[0,2] == 'qu'
           dict['qu'] << word
+        else
+          dict[first_letter] << word
         end
-      elsif dict[first_letter].empty?
-        dict[first_letter] = [word]
-      else
-        dict[first_letter] << word
       end
     end
     dict
